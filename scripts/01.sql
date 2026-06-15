@@ -6,30 +6,27 @@ column_default
 FROM information_schema.columns
 WHERE table_name = 'layoffs_clean'
 
-SELECT *
-FROM layoffs_clean
-WHERE percentage_laid_off = 1;
-
 SELECT MIN(date), MAX(date)
 FROM layoffs_clean
 
--- "Which sectors were hit hardest?" 
+-- "Which sectors and countries were hit hardest?" 
 SELECT 
   industry, 
   SUM(total_laid_off),
-  ROUND(AVG(percentage_laid_off) * 100, 2) AS avg_pct_laid_off
+  ROUND(AVG(percentage_laid_off), 2) AS avg_pct_laid_off
 FROM layoffs_clean
 GROUP BY industry
 ORDER BY 2 DESC
 
-SELECT 
-  country, 
-  SUM(total_laid_off)
+SELECT
+  country,
+  SUM(total_laid_off) AS total_laid_off
 FROM layoffs_clean
+WHERE total_laid_off IS NOT NULL
 GROUP BY country
-ORDER BY 2 DESC
+ORDER BY total_laid_off DESC
 
---  "when did this peak?"
+--  "When did this peak?"
 SELECT
     EXTRACT(YEAR FROM date) AS year,
     SUM(total_laid_off) AS total_laid_off
@@ -62,6 +59,28 @@ FROM layoffs_clean
 GROUP BY company_stage
 ORDER BY total_laid_off DESC;
 
+-- "Which 5 companies laid off the most in each year"
+WITH yearly_layoffs AS (
+  SELECT
+    company,
+    EXTRACT(YEAR from date) AS year,
+    SUM(total_laid_off) AS total_laid_off
+  FROM layoffs_clean
+  WHERE total_laid_off IS NOT NULL
+  GROUP BY company, EXTRACT(YEAR from date)
+),
+ranked AS (
+  SELECT *,
+    DENSE_RANK() OVER(PARTITION BY year ORDER BY total_laid_off DESC) AS ranking
+  FROM yearly_layoffs
+)
 
 SELECT *
-FROM layoffs_clean
+FROM ranked
+WHERE ranking <= 5
+ORDER BY year
+
+
+
+
+

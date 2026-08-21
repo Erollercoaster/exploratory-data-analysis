@@ -1,6 +1,6 @@
 # Exploratory Data Analysis: Tech Layoffs Dataset
 
-![Layoffs Dashboard](assets/dashboard_preview.png)
+![Layoffs Dashboard](data-visuals/dashboard_preview.png)
 
 ## Overview
 This project analyzes a dataset of global tech layoffs to uncover trends in **when**, **where**, and **how severely** companies were affected. It follows a completed data cleaning phase (https://github.com/Erollercoaster/layoffs-data-cleaning) and focuses on exploratory data analysis (EDA) using PostgreSQL, with findings visualized in Power BI connecting directly to the PostgreSQL database.
